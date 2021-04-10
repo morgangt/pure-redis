@@ -28,7 +28,7 @@ class Redis:
     def __get_next_msg(self) -> str:
         """Geting next message from redis."""
 
-        data = self.__check_response(self.__bond.recv(1024))
+        data = self.__bond.recv(1024).decode("utf-8")
         return data
 
     def check_response(self, response: bytes) -> str:
@@ -38,7 +38,7 @@ class Redis:
 
     def serialize_response(self, string: str):
         """Serialize response data."""
-        data = string.decode("utf-8").split("\r\n")
+        data = string.split("\r\n")
         
         if int(data[0].replace("$", "")) == len(data[1]):
             return data[1]
@@ -51,16 +51,16 @@ class Redis:
         string = self.__preparating_string(f"{cmd} {key} \"{value}\"")        
         self.__bond.sendall(string)
 
-        data = self.__check_response(self.__bond.recv(1024))
+        data = self.check_response(self.__bond.recv(1024))
         
         return data
 
-    def get(self, command: str) -> str:
+    def get(self, command: str) -> (str, bool):
         """Command get on key for geting data form redis."""
         cmd = "GET"
         string = self.__preparating_string(f"{cmd} {command}")
         self.__bond.sendall(string)
-        data = self.__get_next_msg()
+        data = self.serialize_response(self.__get_next_msg())
         
         return data
 
@@ -73,3 +73,9 @@ class Redis:
                 
         return data.replace("+", "").replace("\r\n", "")
 
+
+if __name__ == "__main__":
+    r = Redis()
+    print(r.ping())
+    print(r.set("mykey", "Hello"))
+    print(r.get("myke"))
