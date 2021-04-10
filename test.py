@@ -1,13 +1,10 @@
 import pytest
-from unittest import mock 
+from unittest import mock, TestCase
 
 from redis import Redis
 
 
-class TestRedis:
-
-    def setup(self):
-        pass
+class TestRedis(TestCase):
 
     def test_method_ping(self):
         """Testing method ping."""
@@ -16,7 +13,7 @@ class TestRedis:
             redis = Redis()
             result = redis.ping()
         
-        assert result == "PONG"
+        self.assertEqual(result, "PONG")
 
     def test_method_set(self):
         """Testing method get."""
@@ -25,7 +22,7 @@ class TestRedis:
             redis = Redis()
             result = redis.set("test_key", "test_value")
 
-            assert result == True
+            self.assertEqual(result, True)
 
     def test_method_get(self):
         """Testing method get."""
@@ -33,5 +30,5 @@ class TestRedis:
             mock_server.return_value.recv.return_value = b"$5\r\nHello\r\n"
             redis = Redis()
             result = redis.get("mykey")
-            print("[result]", result)
-            assert result == "Hello"
+            
+            self.assertEqual(result,"Hello")
